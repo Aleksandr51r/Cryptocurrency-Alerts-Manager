@@ -3,10 +3,15 @@ from typing import List
 
 
 command_for = {
-    'exit': ['4', "exit", 'sys', 'quit', 'system'],
+    'exit': ['5', "exit", 'sys', 'quit', 'system', 'q'],
     'create': ['1', "create", "create alert"],
     'show': ['2', "show-alerts", "show alerts"],
-    'info': ['3', "info"]
+    'info': ['3', "info"],
+    'logout': ['4', "logout"]
+}
+
+valid_auth_commands = {
+'auth_register': {'1': 'register', '2': 'enter', '3': 'exit', 'register': 'register', 'enter': 'enter', 'exit': 'exit'},
 }
 
 valid_commands = {
@@ -101,8 +106,8 @@ def description_status(status):
 
 
 def success(text):
-    
     return f"\n -------- \033[42m {text} \033[0m --------\n"
+
 def warning(text):
     return f"\n -------- \033[41m {text} \033[0m --------\n"
     return f"\n -------- \033[91m {text} \033[0m --------\n"

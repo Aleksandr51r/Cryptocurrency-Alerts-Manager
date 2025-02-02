@@ -7,7 +7,7 @@ from cli.info import app_info
 
 @click.group(invoke_without_command=True)
 @click.pass_context
-def alerts_manager(ctx):
+def alerts_manager_on_cli(ctx):
     alert_adapter = ctx.obj.get("alert_adapter")
 
     if alert_adapter is None:
@@ -25,8 +25,9 @@ def alerts_manager(ctx):
         command = input(
             f"\t 1 - {underline('Create')} alert \n"
             f"\t 2 - {underline('Show')} alerts\n"
-            f"\t 3 - {underline('Info')}\n\n"
-            f"\t 4 - {underline('Exit')}\n"
+            f"\t 3 - {underline('Info')}\n"
+            f"\t 4 - {underline('Logout')}\n\n"
+            f"\t 5 - {underline('Exit')}\n"
             f"\n>> Your command: "
         )
 
@@ -36,24 +37,28 @@ def alerts_manager(ctx):
         if command in command_for['exit']:
             click.echo("\nGoodbye! :)\n")
             raise SystemExit()
+#! logout
+        elif command in command_for['logout']:
+            click.echo("\nLogging out...\n")
+            return 
 
 #! Create
         elif command in command_for['create']:
-
-            alert = []
-
+            alert_data = {}
             header('CREATE the ALERT')
-
-            full_alert = create_alert(alert)
+            full_alert = create_alert(alert_data)
             if full_alert:
                 try:
-                    alert_adapter.create_alert(*full_alert)
+                    click.echo("try")
+                    click.echo(full_alert)
+                    alert_adapter.create_alert(full_alert)
                     click.echo(
-                        success(f"Alert for {full_alert[1]} was created!"))
+                        success(f"Alert for  {full_alert['cryptocurrency']} was created!"))
                 except:
+                    click.echo("except")
+                    click.echo(full_alert)
                     click.echo(
-                        warning(f"Faluer to create an alert for {full_alert[1]}!"))
-
+                        warning(f"Faluer to create an alert for {full_alert['cryptocurrency']}!"))
 #! Show and modify
         elif command in command_for['show']:
             alerts = alert_adapter.get_all_alerts()
@@ -64,4 +69,3 @@ def alerts_manager(ctx):
         else:
             click.echo(warning("Unknown command. Please try again."))
 
-    alerts_manager()

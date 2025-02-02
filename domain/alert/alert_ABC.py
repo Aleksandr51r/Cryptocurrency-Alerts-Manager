@@ -2,20 +2,19 @@ from abc import ABC, abstractmethod
 from domain.crypto.cryptocurrency import Cryptocurrency
 
 
-
 class Alert(ABC):
-    def __init__(self, alert_id: str, type_alert: str, trigger_value: float, trigger_direction: str):
+    def __init__(self, alert_id: str, alert_type: str, trigger_value: float, trigger_direction: str):
         self.alert_id = alert_id
-        self.type_alert = type_alert
-        self.alert_on = False
-        self.sended_notice = False
+        self.alert_type = alert_type
         self.trigger_value = trigger_value
         self.trigger_direction = trigger_direction
+
+        self.alert_on = False
+        self.sended_notice = False
 
     @abstractmethod
     def describe_alert(self):
         pass
-
 
     @abstractmethod
     def is_alert_on(self, current_price: float):
@@ -23,9 +22,8 @@ class Alert(ABC):
 
     def update_cryptocurrency(self, new_cryptocurrency: Cryptocurrency):
         self.cryptocurrency = new_cryptocurrency
-        self.currency_name = new_cryptocurrency.currency_name
-        self.currency_rate = new_cryptocurrency.currency_rate
-
+        # self.currency_name = new_cryptocurrency.currency_name
+        # self.currency_rate = new_cryptocurrency.currency_rate
 
     def update_trigger_direction(self, new_direction: str):
         self.trigger_direction = new_direction

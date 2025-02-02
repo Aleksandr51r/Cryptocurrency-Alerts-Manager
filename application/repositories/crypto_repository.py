@@ -3,45 +3,62 @@ from infrastracture.api.api_service import CoinAPIExchangeRateProvider
 from application.ports.cryptocurrency_port import CryptocurrencyRepositoryPort
 
 
+
+
 class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
-    rate_provider = CoinAPIExchangeRateProvider()
-
+    _instance = None  
     """
-
-    cryptocurrency_id : btc
-    currency_name : bitcoin
-
+    class Cryptocurrency is SINGLETON one for all ALERTs REPOs
+    # btc:{cryptocurrency_id: btc,currency_name: BITCOIN, currency_rate: 105000 }
+    
+    cryptocurrency_id : 'btc'   # lower
+    currency_name : 'BITCOIN'  # UPPER
     """
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def __init__(self):
-        self.currencies = {}
-        self.currencies_in_use = {}
+        if not hasattr(self, 'initialized'):
+            self.rate_provider = CoinAPIExchangeRateProvider()
+            self.currencies_in_use = {
+                # BTC:1,
+                # ETH:2
+            }
+            self.currencies = {}
+# * Axillary Method to take a btc when type a bitcoin
+            self.currency_aliases = {
+                # "btc": "bitcoin",
+                # "eth": "ethereum",
+                # "ltc": "litecoin",
+                # "xrp": "ripple",
+                # "bch": "bitcoin cash"
+            }
+            self.currency_aliases_full = {
+                # "bitcoin": "btc",
+                # "ethereum": "eth",
+                # "litecoin": "ltc",
+                # "ripple": "xrp",
+                # "bitcoin cash": "bch"
+            }
+            self.initialized = True
 
-        self.cryptocurrency_aliases = {
-            # "btc": "bitcoin",
-            # "eth": "ethereum",
-            # "ltc": "litecoin",
-            # "xrp": "ripple",
-            # "bch": "bitcoin cash"
-        }
-
-        self.cryptocurrency_aliases_long = {
-            # "bitcoin": "btc",
-            # "ethereum": "eth",
-            # "litecoin": "ltc",
-            # "ripple": "xrp",
-            # "bitcoin cash": "bch"
-        }
 
     def normalize_currency_name(self, cryptocurrency: str):
         cryptocurrency = cryptocurrency.strip().upper()
-        if cryptocurrency in self.cryptocurrency_aliases_long:
-            return self.cryptocurrency_aliases_long[cryptocurrency]
-        elif cryptocurrency in self.cryptocurrency_aliases:
+        if cryptocurrency in self.currency_aliases_full:
+            return self.currency_aliases_full[cryptocurrency]
+        elif cryptocurrency in self.currency_aliases:
             return cryptocurrency
         return None
 
-    def get_or_create_currency(self, user_input_cryptocurrency: str, rate_provider=rate_provider):
+# * Axillary Methods
+    def get_currencies_in_use(self):
+        return self.currencies_in_use
+
+# * Create Method
+    def get_or_create_currency(self, user_input_cryptocurrency: str):
 
         new_cryptocurrency_id = self.normalize_currency_name(
             user_input_cryptocurrency)
@@ -59,21 +76,23 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
 
         try:
             print('step - try fetch_name ', user_input_cryptocurrency)
-            cryptocurrency_id, currency_name= rate_provider.fetch_the_name(user_input_cryptocurrency)
-            currency_rate= rate_provider.get_exchange_rate(user_input_cryptocurrency)
+            cryptocurrency_id, currency_name = self.rate_provider.fetch_the_name(
+                user_input_cryptocurrency)
+            currency_rate = self.rate_provider.get_exchange_rate(
+                user_input_cryptocurrency)
             # print('step - currency_rate', currency_rate)
             # print('step - cryptocurrency_id currency_name',cryptocurrency_id, currency_name)
-            new_currency= Cryptocurrency(
+            new_currency = Cryptocurrency(
                 cryptocurrency_id, currency_name.upper(), currency_rate)
-            self.cryptocurrency_aliases_long[currency_name.upper(
+            self.currency_aliases_full[currency_name.upper(
             )] = cryptocurrency_id
-            self.cryptocurrency_aliases[cryptocurrency_id] = currency_name.upper(
+            self.currency_aliases[cryptocurrency_id] = currency_name.upper(
             )
             self.currencies_in_use[cryptocurrency_id] = 1
             self.currencies[cryptocurrency_id] = new_currency
             # print('step - after fetch new_currency', new_currency)
-            # print('step - after fetch self.cryptocurrency_aliases',self.cryptocurrency_aliases)
-            # print('step - after fetch self.cryptocurrency_aliases_long',self.cryptocurrency_aliases_long)
+            # print('step - after fetch self.currency_aliases',self.currency_aliases)
+            # print('step - after fetch self.currency_aliases_full',self.currency_aliases_full)
             # print('- step -  if new_cryptocurrency_id self.currencies_in_use',self.currencies_in_use)
             return new_currency
         except AttributeError as e:
@@ -94,11 +113,13 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
             if self.currencies_in_use[cryptocurrency] == 0:
                 self.delete_cryptocurrency(cryptocurrency)
 
-    def update_all_prices(self, target_currency: str, rate_provider=rate_provider):
+    # * Update method
+
+    def update_all_prices(self, target_currency: str):
         for currency in self.currencies.keys():
             try:
                 # ! Fetching a price  to rest.coinapi.io
-                new_price = rate_provider.get_exchange_rate(target_currency)
+                new_price = self.rate_provider.get_exchange_rate(target_currency)
                 # ! Set a price for each Coin
                 self.currencies['currency'].update_price(
                     new_price)
@@ -107,11 +128,9 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
             except Exception as e:
                 print(f"Failed to update {currency.cryptocurrency}: {e}")
 
+    # * Delete Method
     def delete_cryptocurrency(self, cryptocurrency: str):
         print('- step -  if new_cryptocurrency_id self.currencies_in_use',
               self.currencies_in_use)
         del self.currencies[cryptocurrency]
         del self.currencies_in_use[cryptocurrency]
-
-    def giv_me_a_count(self):
-        return self.currencies_in_use

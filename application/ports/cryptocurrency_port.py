@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from domain.crypto.cryptocurrency import Cryptocurrency
 
-
 class CryptocurrencyRepositoryPort(ABC):
 
     # * Create Method

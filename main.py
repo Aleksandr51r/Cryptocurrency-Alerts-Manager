@@ -1,16 +1,12 @@
-
-from infrastracture.adapters.alert_adapter import AlertsAdapter
-from application.repositories.alert_repository import InMemoryAlertsRepository
-from application.repositories.alert_repository import CryptocurrencyRepository
-from cli.cli import alerts_manager
+from cli.cli import alerts_manager_on_cli
+from cli.auth import auth
 
 
 def main():
-    crypto_storage = CryptocurrencyRepository()
-    alert_storage = InMemoryAlertsRepository(crypto_storage)
-    alert_adapter = AlertsAdapter(alert_storage)
-
-    alerts_manager(obj={"alert_adapter": alert_adapter})
+    while True:
+        user = auth()
+        if user:
+            alerts_manager_on_cli(obj={"alert_adapter": user.alert_adapter})
 
 
 if __name__ == '__main__':

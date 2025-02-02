@@ -3,15 +3,19 @@ from domain.alert.alert_ABC import Alert
 
 
 class AlertsRepositoryPort(ABC):
-
-    # * Create Method
+       
+# * Create Method
     @abstractmethod
     def save_alert(self, alert: Alert):
         pass
 
 # * Read Methods
     @abstractmethod
-    def get_alert(self, alert_id: int):
+    def get_alert_as_obj(self, alert_id: str):
+        pass
+    
+    @abstractmethod
+    def get_all_alerts_as_objects(self, alert_id: str):
         pass
 
     @abstractmethod
@@ -22,4 +26,3 @@ class AlertsRepositoryPort(ABC):
     @abstractmethod
     def delete_alert(self, alert_id: str, cryptocurrency: str):
         pass
-

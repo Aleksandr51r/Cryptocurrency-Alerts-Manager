@@ -4,7 +4,7 @@ from cli import get_numeric_input, prompt_input
 import click
 
 
-def create_alert(alert):
+def create_alert(alert_data):
 
     options_header("Choose the type of alert")
     alert_type = prompt_input(
@@ -17,19 +17,17 @@ def create_alert(alert):
     if alert_type == 'back':
         return None
 
-    alert.append(alert_type)
     options_header("Choose the cryptocurrency")
     cryptocurrency = input(
         f"\t >> Please enter the cryptocurrency: ").strip().upper()
-    alert.append(cryptocurrency)
 
     if alert_type == 'limit':
         options_header("Choose the limit of triggering:")
         limit = input(
             f"\t >> Please enter the limit for {user_choose(cryptocurrency)}: ")
         while not get_numeric_input(limit):
-            limit = input(f"\t >> Please enter the correct value for limit (integer or float) for {user_choose(cryptocurrency)}: ")
-        alert.append(float(limit))
+            limit = input(
+                f"\t >> Please enter the correct value for limit (integer or float) for {user_choose(cryptocurrency)}: ")
 
         options_header(
             f"Alert will trigger when {cryptocurrency} will be:")
@@ -40,7 +38,6 @@ def create_alert(alert):
 
         if direction == 'back':
             return None
-        alert.append(direction)
 
     elif alert_type == 'percent':
         options_header("Choose the limit of triggering:")
@@ -49,7 +46,6 @@ def create_alert(alert):
         while not get_numeric_input(limit, [0.001, 100]):
             limit = input(
                 f"\t >> Please enter the correct value (integer or float)for limit between 0.001 and 100.0 for {user_choose(cryptocurrency)}: ")
-        alert.append(float(limit))
 
         options_header(
             f"Alert will trigger when % {cryptocurrency} will change in:")
@@ -60,9 +56,10 @@ def create_alert(alert):
                                  f"\n>> Your command: ", valid_commands['direction_for_percent'])
         if direction == 'back':
             return None
-        
-        alert.append(direction)
 
-    
+    alert_data['alert_type'] = alert_type
+    alert_data['cryptocurrency'] = cryptocurrency
+    alert_data['trigger_value'] = float(limit)
+    alert_data['trigger_direction'] = direction
 
-    return alert
+    return alert_data
