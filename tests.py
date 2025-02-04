@@ -1,13 +1,13 @@
 import unittest
 from infrastracture.adapters.alert_adapter import AlertsAdapter
-from application.repositories.alert_repository import InMemoryAlertsRepository
+from application.repositories.alert_repository import AlertsRepository
 from application.repositories.alert_repository import CryptocurrencyRepository
 
 
 class TestAlertsAdapter(unittest.TestCase):
     def setUp(self):
         self.crypto_storage = CryptocurrencyRepository()
-        self.alert_storage = InMemoryAlertsRepository(self.crypto_storage)
+        self.alert_storage = AlertsRepository(self.crypto_storage)
         self.alert_adapter = AlertsAdapter(self.alert_storage)
 
         # Creating initial alerts
@@ -66,7 +66,7 @@ class TestAlertsAdapter(unittest.TestCase):
             self.assertEqual(alert.trigger_value, new_trigger_values[i])
             self.assertEqual(alert.trigger_direction,
                              new_trigger_directions[i])
-            
+
         print('$$$$$$$$')
         print(*self.alert_adapter.get_all_alert_objects(), sep='\n')
 

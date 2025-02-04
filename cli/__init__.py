@@ -27,7 +27,7 @@ valid_modify_commands = {'modify': {'1': 'modify', 'modify': 'modify', '2': 'bac
     'value': 'value',
     '3': 'direction',
     'direction': 'direction',
-    '4': 'delete',
+    '1234': 'delete',
     'delete': 'delete',
     '5': 'back',
     'back': 'back'
@@ -106,10 +106,12 @@ def description_status(status):
 
 
 def success(text):
-    return f"\n -------- \033[42m {text} \033[0m --------\n"
+    return f"\n\n -------- \033[42m {text} \033[0m --------\n"
 
 def warning(text):
-    return f"\n -------- \033[41m {text} \033[0m --------\n"
+    return f"\n\n -------- \033[41m {text} \033[0m --------\n"
     return f"\n -------- \033[91m {text} \033[0m --------\n"
 
 
+def warning_message(text):
+    return f"\n\n -------- \033[43m \033[30m {text} \033[0m --------\n"

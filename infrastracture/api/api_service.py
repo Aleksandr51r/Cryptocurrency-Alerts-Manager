@@ -36,13 +36,19 @@ class CoinAPIExchangeRateProvider():
 
         print('...')
         response = requests.get(url, headers=self.headers)
-        if response.status_code == 200:
+        data = response.json()
+        if data != []:
             print('Suscess !')
-            data = response.json()
+            print('data', data)
             return data[0]['asset_id'], data[0]['name']
         else:
             raise Exception(f"Error {response.status_code}: {response.text}")
 
+        # if response.status_code == 200:
+        #     print('Suscess !')
+        #     data = response.json()
+        #     return data[0]['asset_id'], data[0]['name']
+        #     print('data', data)
 
 # api_provider = CoinAPIExchangeRateProvider()
 

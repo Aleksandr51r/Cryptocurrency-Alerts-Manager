@@ -1,6 +1,7 @@
 import click
+import getpass
 from auth import UserRegistry, User
-from cli import valid_auth_commands, underline, try_to_update, options_header, warning, user_choose, header, prompt_input, get_numeric_input, success, description_id
+from cli import valid_auth_commands, underline,warning_message, try_to_update, options_header, warning, user_choose, header, prompt_input, get_numeric_input, success, description_id
 user_registry = UserRegistry()
 
 
@@ -8,15 +9,16 @@ def cheking_name(registration=False):
 
     while True:
         username = input(f"\n\t >> Please enter the name: ").lower()
-        is_name_exist = user_registry.checking_the_name(username)
-    # registration
+        is_name_exist = user_registry.checking_for_user(username)
+        
+        # Registration
         if registration and is_name_exist:
-            click.echo(
-                f"\n[!] User with the name '{username}' already exists.\n")
-    # loging
+            click.echo(warning_message(f"User with the name '{username}' already exists."))
+        
+        # Logging
         elif not registration and not is_name_exist:
-            click.echo(
-                f"\n[!] User with the name '{username}' was not found.\n")
+            click.echo(warning_message(f"User with the name '{username}' was not found."))
+        
         else:
             return username
 
@@ -24,28 +26,30 @@ def cheking_name(registration=False):
 
 def registration():
     username = cheking_name(registration=True)
-    password = input(f"\n\t >> Please enter the password: ")
+    password = getpass.getpass(f"\t >> Please enter your password: ")
+
     new_user = user_registry.register_new_user(username, password)
-    click.echo(f"\nUser {new_user.username} successfully registered!")
+    click.echo(
+        f"\n{success(f'User {new_user.username} successfully registered!')}")
     return new_user
 
 
 def login():
     username = cheking_name()
-    password = input(f"\t >> Please enter your password: ")
+    password = getpass.getpass(f"\t >> Please enter your password: ")
     user = user_registry.authenticate_user(username.lower(), password)
     if user:
-        click.echo(f"\n\tWelcome back, {user.username}!")
+        click.echo(f"\n\t{success(f'Welcome back, {user.username}!')}")
         return user
     else:
-        click.echo("\n\tInvalid username or password.")
+        click.echo(f"\n\t{warning('Invalid  password.')}")
         return None
 
 
 def auth():
     is_authorised = False
-    click.echo("\n\n \t\tWelcome to Alerts Manager!")
-    click.echo("----------------------------------------------------------\n")
+    click.echo("\n\n \t \t --- Registation to Alerts Manager! ---")
+
     options_header("Choose the options:")
     auth_action = prompt_input(f"\t1 - {underline('Register')} the new user\n"
                                f"\t2 - {underline('Enter')} as register user\n\n"
@@ -63,4 +67,6 @@ def auth():
 
     elif auth_action == 'enter':
         user = login()
-        return user
+        if user:
+            return user
+        return None

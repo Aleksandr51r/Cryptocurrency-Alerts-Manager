@@ -1,15 +1,14 @@
 from domain.crypto.cryptocurrency import Cryptocurrency
 from infrastracture.api.api_service import CoinAPIExchangeRateProvider
 from application.ports.cryptocurrency_port import CryptocurrencyRepositoryPort
-
-
+import asyncio
 
 
 class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
-    _instance = None  
+    _instance = None
     """
     class Cryptocurrency is SINGLETON one for all ALERTs REPOs
-    # btc:{cryptocurrency_id: btc,currency_name: BITCOIN, currency_rate: 105000 }
+    # btc(cryptocurrency_id):{cryptocurrency_id: btc,currency_name: BITCOIN, currency_rate: 105000 }
     
     cryptocurrency_id : 'btc'   # lower
     currency_name : 'BITCOIN'  # UPPER
@@ -27,6 +26,7 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
                 # ETH:2
             }
             self.currencies = {}
+            self.currencies_rate = {}   # ! Debuging bts: 100000
 # * Axillary Method to take a btc when type a bitcoin
             self.currency_aliases = {
                 # "btc": "bitcoin",
@@ -44,7 +44,6 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
             }
             self.initialized = True
 
-
     def normalize_currency_name(self, cryptocurrency: str):
         cryptocurrency = cryptocurrency.strip().upper()
         if cryptocurrency in self.currency_aliases_full:
@@ -57,6 +56,9 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
     def get_currencies_in_use(self):
         return self.currencies_in_use
 
+    def get_currencies(self):
+        return self.currencies
+
 # * Create Method
     def get_or_create_currency(self, user_input_cryptocurrency: str):
 
@@ -67,7 +69,7 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
         if new_cryptocurrency_id in self.currencies:
             # print('step -  if new_cryptocurrency_id', new_cryptocurrency_id)
             self.increment_currencies_in_use(new_cryptocurrency_id)
-            # print('step -  if new_cryptocurrency_id self.currencies', self.currencies)
+            print('step -  if new_cryptocurrency_id self.currencies', self.currencies)
             # print('- step -  if new_cryptocurrency_id self.currencies_in_use',self.currencies_in_use)
             return self.currencies[new_cryptocurrency_id]
         # else:
@@ -75,21 +77,26 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
             # print('step - else user_input_cryptocurrency',user_input_cryptocurrency)
 
         try:
-            print('step - try fetch_name ', user_input_cryptocurrency)
+            # print('step - try fetch_name ', user_input_cryptocurrency)
             cryptocurrency_id, currency_name = self.rate_provider.fetch_the_name(
                 user_input_cryptocurrency)
+
+            # print('step - cryptocurrency_id', cryptocurrency_id)
             currency_rate = self.rate_provider.get_exchange_rate(
                 user_input_cryptocurrency)
+
             # print('step - currency_rate', currency_rate)
             # print('step - cryptocurrency_id currency_name',cryptocurrency_id, currency_name)
             new_currency = Cryptocurrency(
                 cryptocurrency_id, currency_name.upper(), currency_rate)
+            # new_currency = Cryptocurrency(cryptocurrency_id, currency_name.upper(), currency_rate)
             self.currency_aliases_full[currency_name.upper(
             )] = cryptocurrency_id
-            self.currency_aliases[cryptocurrency_id] = currency_name.upper(
-            )
+            self.currency_aliases[cryptocurrency_id] = currency_name.upper()
             self.currencies_in_use[cryptocurrency_id] = 1
             self.currencies[cryptocurrency_id] = new_currency
+            print('step -  if new_cryptocurrency_id self.currencies', self.currencies)
+
             # print('step - after fetch new_currency', new_currency)
             # print('step - after fetch self.currency_aliases',self.currency_aliases)
             # print('step - after fetch self.currency_aliases_full',self.currency_aliases_full)
@@ -115,22 +122,31 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
 
     # * Update method
 
-    def update_all_prices(self, target_currency: str):
-        for currency in self.currencies.keys():
+    async def update_all_prices(self):
+        interval = 5  
+        print(f"Initial currencies in use: {self.get_currencies_in_use()}") 
+        for cryptocurrency_id in self.currencies:
             try:
-                # ! Fetching a price  to rest.coinapi.io
-                new_price = self.rate_provider.get_exchange_rate(target_currency)
-                # ! Set a price for each Coin
-                self.currencies['currency'].update_price(
-                    new_price)
-                print(
-                    f"Updated {currency.cryptocurrency} to {new_price} {target_currency}")
+                new_price = self.rate_provider.get_exchange_rate(cryptocurrency_id)
+                # print(f"New price for {cryptocurrency_id}: {new_price}")
+                
+                self.currencies[cryptocurrency_id].update_price(new_price)
+                print(f"Updated {cryptocurrency_id} to {new_price} $")
             except Exception as e:
-                print(f"Failed to update {currency.cryptocurrency}: {e}")
+                print(f"Failed to update {cryptocurrency_id}: {e}")
+        
+        print("Waiting before next update...")
+        # await asyncio.sleep(interval) 
+    
+        await self.update_all_prices()  
+    update_all_prices(CryptocurrencyRepositoryPort)  
 
     # * Delete Method
+
     def delete_cryptocurrency(self, cryptocurrency: str):
-        print('- step -  if new_cryptocurrency_id self.currencies_in_use',
+        print('- step -  delete_cryptocurrency self.currencies_in_use =>',
               self.currencies_in_use)
         del self.currencies[cryptocurrency]
         del self.currencies_in_use[cryptocurrency]
+
+

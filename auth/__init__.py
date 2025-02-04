@@ -1,7 +1,8 @@
 import bcrypt
+
 from infrastracture.adapters.alert_adapter import AlertsAdapter
 from infrastracture.adapters.cryptocurrency_adapter import CryptocurrencyAdapter
-from application.repositories.alert_repository import InMemoryAlertsRepository
+from application.repositories.alert_repository import AlertsRepository
 from application.repositories.crypto_repository import CryptocurrencyRepository
 from tools import generate_unique_id
 
@@ -22,20 +23,19 @@ class User:
         self.password_hash = password_hash
 
         self.crypto_storage = CryptocurrencyRepository()
-        self.alert_storage = InMemoryAlertsRepository(self.crypto_storage)
-        self.alert_adapter = AlertsAdapter(
-            self.alert_storage, self.crypto_storage)
+        self.alert_storage = AlertsRepository(self.crypto_storage) # ! Only here where we link crypto_storage whith AlertsRepository
+        self.alert_adapter = AlertsAdapter(self.alert_storage)
+
 
 
 class UserRegistry:
     def __init__(self):
         self.users = {}
 
-    def checking_the_name(self, username):
+    def checking_for_user(self, username):
         if username in self.users:
             return True
         return False
-
 
     def register_new_user(self,  username, password):
         password_hash = hash_password(password)
@@ -46,15 +46,10 @@ class UserRegistry:
 
     def authenticate_user(self, username, password):
         user = self.users.get(username)
-        if not user:
-            return 'Invalid username'
-
         if check_password(password, user.password_hash):
             return user
         else:
-            return 'Invalid password'
-
-        
+            return False
 
     def delete_user(self, username):
         del self.users[username]

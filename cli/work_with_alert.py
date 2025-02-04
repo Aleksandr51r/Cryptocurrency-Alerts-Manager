@@ -1,14 +1,14 @@
 from cli import valid_modify_commands, underline, try_to_update, options_header, warning, user_choose, header, prompt_input, get_numeric_input, success, description_id
 import click
+import time
+import sys
+import threading
 
 
 def work_with_alert(alerts, alert_adapter):
-
     while True:
         if not alerts:
-
             # sad kitty
-
             click.echo(
                 '\t　　　　　   ____                                         ')
             click.echo('\t　　　　　／＞　　フ                                       ')
@@ -24,9 +24,17 @@ def work_with_alert(alerts, alert_adapter):
             click.echo(
                 '\t　＼二つ                                                  ')
             return None
+        
+        
+        
+        alerts = alert_adapter.get_all_alerts()
 
         header('List of all alerts:')
-        print(*alerts, sep='\n')
+        # print(*alerts, sep='\n')
+        for alert in alerts:
+            print(alert)  
+        
+        
 
         options_header("Choose the options:")
         action = prompt_input(f"\t1 - {underline('Modify')} the alert\n\n"
@@ -50,7 +58,7 @@ def work_with_alert(alerts, alert_adapter):
                     alert_action = prompt_input(f"\t1 - Change a {underline('currency')} of the alert\n"
                                                 f"\t2 - Change a {underline('value')} of triggering\n"
                                                 f"\t3 - Change a {underline('direction')} of triggering\n"
-                                                f"\t4 - {underline('Delete')} the alert \n\n"
+                                                f"\t1234 - {underline('Delete')} the alert \n\n"
                                                 f"\t5 - {underline('Back')} to the list of alerts\n\n"
                                                 f"\n>> Your command: ", valid_modify_commands['alert_action'])
                     alert = alert_adapter.get_alert(choosen_alert)
@@ -64,14 +72,19 @@ def work_with_alert(alerts, alert_adapter):
                               all_alerts[f'{choosen_alert}'].cryptocurrency.cryptocurrency_id)
                         old_cryptocurrency = all_alerts[f'{choosen_alert}'].cryptocurrency.cryptocurrency_id
 
-                        print('>>>>>>>>>>>>>>1', dir(alert_adapter))
-                        new_currency = alert_adapter.crypto_storage.get_cryptocurrency(
-                            new_currency)
-                        print('>>>>>>>>>>>>>>2', new_currency)
-                        alert_adapter.crypto_storage.manage_list_cryptocurrency_decrement(
-                            old_cryptocurrency)
-                        try_to_update(lambda: alert.update_cryptocurrency(
-                            new_currency), choosen_alert)
+                        # print('>>>>>>>>>>>>>>1', dir(alert_adapter))
+
+                        try:
+                            new_currency = alert_adapter.repository.crypto_storage.get_or_create_currency(
+                                new_currency)
+                            print('>>>>>>>>>>>>>>2', new_currency)
+                            alert_adapter.repository.crypto_storage.decrement_currencies_in_use(
+                                old_cryptocurrency)
+                            try_to_update(lambda: alert.update_cryptocurrency(
+                                new_currency), choosen_alert)
+                        except:
+
+                            click.echo(warning(f"{new_currency}!"))
 
                     elif alert_action == 'value':
 
@@ -122,3 +135,4 @@ def work_with_alert(alerts, alert_adapter):
                         alerts = alert_adapter.get_all_alerts()
                         choosen_alert = None
                         break
+        
