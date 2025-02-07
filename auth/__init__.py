@@ -1,7 +1,6 @@
 import bcrypt
 
 from infrastracture.adapters.alert_adapter import AlertsAdapter
-from infrastracture.adapters.cryptocurrency_adapter import CryptocurrencyAdapter
 from application.repositories.alert_repository import AlertsRepository
 from application.repositories.crypto_repository import CryptocurrencyRepository
 from tools import generate_unique_id

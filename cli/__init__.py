@@ -19,7 +19,7 @@ valid_commands = {
     'direction_for_limit': {'1': 'above', '2': 'below', '3': 'back', 'above': 'above', 'below': 'below', 'back': 'back'},
     'direction_for_percent': {'1': 'increase', '2': 'decrease', '3': 'any', '4': 'back', 'increase': 'increase', 'decrease': 'decrease', 'any': 'any', 'back': 'back'}
 }
-valid_modify_commands = {'modify': {'1': 'modify', 'modify': 'modify', '2': 'back', 'back': 'back'},
+valid_modify_commands = {'modify': {'1': 'modify', 'modify': 'modify', '2': 'relance', 'relance': 'relance', '3': 'back', 'back': 'back'},
                          'alert_action': {
     '1': 'currency',
     'currency': 'currency',

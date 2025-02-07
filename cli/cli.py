@@ -4,18 +4,27 @@ from cli.create_alert import create_alert
 from cli.work_with_alert import work_with_alert
 from cli.info import app_info
 from cli.auth import auth
+from preset_new_user import New_User
 
 
 @click.group(invoke_without_command=True)
 def alerts_manager_on_cli():
     while True:
-        user = auth()
-        while not user:
-            user = auth()
+        # user = auth()
 
-        alert_adapter = user.alert_adapter
-
+        # while not user:
+        #     user = auth()
+        # alert_adapter = user.alert_adapter
         
+        new_user = New_User()
+        alert_adapter = new_user.alert_adapter
+
+
+
+
+
+
+        # alert_adapter = user.alert_adapter
         if alert_adapter is None:
             click.echo("Error: alert_adapter is not properly configured.")
             raise SystemExit()
@@ -60,14 +69,18 @@ def alerts_manager_on_cli():
                         click.echo("try in cli")
                         # click.echo(full_alert)
                         alert_adapter.create_alert(full_alert)
-                        click.echo(success(f"Alert for {full_alert['cryptocurrency']} was created!"))
-                        
-                        print('alerts', alert_adapter.repository.crypto_storage.currencies)
-                        print(alert_adapter.repository.crypto_storage.currencies_in_use)
+                        click.echo(
+                            success(f"Alert for {full_alert['cryptocurrency']} was created!"))
+
+                        print(
+                            'alerts', alert_adapter.repository.crypto_storage.currencies)
+                        print(
+                            alert_adapter.repository.crypto_storage.currencies_in_use)
                         # click.echo('>>>', alert_adapter.repository.crypto_storage.get_currencies())
                     except:
                         click.echo("except  in cli")
-                        click.echo(warning(f"Faluer to create an alert for {full_alert['cryptocurrency']}!"))
+                        click.echo(
+                            warning(f"Faluer to create an alert for {full_alert['cryptocurrency']}!"))
     #! Show and modify
             elif command in command_for['show']:
                 alerts = alert_adapter.get_all_alerts()

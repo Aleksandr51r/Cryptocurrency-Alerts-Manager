@@ -122,7 +122,7 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
 
     # * Update method
 
-    async def update_all_prices(self):
+    def update_all_prices(self):
         interval = 5  
         print(f"Initial currencies in use: {self.get_currencies_in_use()}") 
         for cryptocurrency_id in self.currencies:
@@ -138,8 +138,8 @@ class CryptocurrencyRepository(CryptocurrencyRepositoryPort):
         print("Waiting before next update...")
         # await asyncio.sleep(interval) 
     
-        await self.update_all_prices()  
-    update_all_prices(CryptocurrencyRepositoryPort)  
+        # await self.update_all_prices()  
+    # update_all_prices(CryptocurrencyRepositoryPort)  
 
     # * Delete Method
 
