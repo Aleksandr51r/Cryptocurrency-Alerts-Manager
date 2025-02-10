@@ -1,9 +1,8 @@
 import click
 import getpass
-from auth import UserRegistry, User
+from auth.auth import UserRegistry, User
 from cli import valid_auth_commands, underline,warning_message, try_to_update, options_header, warning, user_choose, header, prompt_input, get_numeric_input, success, description_id
 user_registry = UserRegistry()
-
 
 def cheking_name(registration=False):
 

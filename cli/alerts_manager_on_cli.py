@@ -10,21 +10,18 @@ from preset_new_user import New_User
 @click.group(invoke_without_command=True)
 def alerts_manager_on_cli():
     while True:
-        # user = auth()
-
-        # while not user:
-        #     user = auth()
-        # alert_adapter = user.alert_adapter
         
-        new_user = New_User()
-        alert_adapter = new_user.alert_adapter
+        # ! Comment this to use preset user without registration (for debug)
+        
+        user = auth()
+        while not user:
+            user = auth()
+        alert_adapter = user.alert_adapter
+        
+        # ! UNcomment this to use preset user without registration (for debug)
+        # new_user = New_User()
+        # alert_adapter = new_user.alert_adapter
 
-
-
-
-
-
-        # alert_adapter = user.alert_adapter
         if alert_adapter is None:
             click.echo("Error: alert_adapter is not properly configured.")
             raise SystemExit()
@@ -67,7 +64,6 @@ def alerts_manager_on_cli():
                 if full_alert:
                     try:
                         click.echo("try in cli")
-                        # click.echo(full_alert)
                         alert_adapter.create_alert(full_alert)
                         click.echo(
                             success(f"Alert for {full_alert['cryptocurrency']} was created!"))
@@ -76,7 +72,6 @@ def alerts_manager_on_cli():
                             'alerts', alert_adapter.repository.crypto_storage.currencies)
                         print(
                             alert_adapter.repository.crypto_storage.currencies_in_use)
-                        # click.echo('>>>', alert_adapter.repository.crypto_storage.get_currencies())
                     except:
                         click.echo("except  in cli")
                         click.echo(

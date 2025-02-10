@@ -13,7 +13,7 @@ class New_User:
             {
                 'alert_type': 'limit',
                 'cryptocurrency': 'BTC',
-                'trigger_value': 45000,
+                'trigger_value': 105000,
                 'trigger_direction': 'above'
             },
             {
@@ -27,6 +27,12 @@ class New_User:
                 'cryptocurrency': 'BNB',
                 'trigger_value': 500,
                 'trigger_direction': 'above'
+            },
+            {
+                'alert_type': 'limit',
+                'cryptocurrency': 'BTC',
+                'trigger_value': 105000,
+                'trigger_direction': 'below'
             },
             # {
             #     'alert_type': 'limit',

@@ -1,4 +1,4 @@
-from cli.cli import alerts_manager_on_cli
+from cli.alerts_manager_on_cli import alerts_manager_on_cli
 import click
 import asyncio
 

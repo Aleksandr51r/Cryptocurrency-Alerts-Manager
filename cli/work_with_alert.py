@@ -5,7 +5,11 @@ import sys
 import threading
 from  application.repositories.crypto_update import AutoUpdateService
 
+
+
+
 def work_with_alert(alerts, alert_adapter):
+
     while True:
         if not alerts:
             # sad kitty
@@ -36,14 +40,15 @@ def work_with_alert(alerts, alert_adapter):
         
 
         options_header("Choose the options:")
-        action = prompt_input(f"\t1 - {underline('Modify')} the alert\n\n"
-                              f"\t2 - {underline('Relance')}\n"
+        action = prompt_input(f"\t1 - {underline('Modify')} the alert\n"
+                              f"\t2 - {underline('Update')} the rates\n\n"
                               f"\t3 - {underline('Exit')}\n"
                               f"\n>> Your command: ",
                               valid_modify_commands['modify'])
         if action == 'back':
             return None
-        elif action == 'relance':
+        
+        elif action == 'update':
             alert_adapter.repository.crypto_storage.update_all_prices()
 
 
@@ -138,4 +143,5 @@ def work_with_alert(alerts, alert_adapter):
                         alerts = alert_adapter.get_all_alerts()
                         choosen_alert = None
                         break
-        
+                    
+                    
